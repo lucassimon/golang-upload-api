@@ -1,4 +1,4 @@
-package services
+package upload
 
 import (
 	"context"
@@ -18,9 +18,13 @@ func NewUploadService(bucket *buckets.BucketFactory, mediaDB db.MediaDBRepositor
 	return &UploadService{Bucket: bucket, Repository: mediaDB}
 }
 
-func (s *UploadService) Upload(ctx context.Context) (string, error) {
+func (s *UploadService) Upload(ctx context.Context, input_params MediaInput) (string, error) {
 	log.Println("call upload service")
-	result, err := s.Bucket.Provider.Upload(ctx)
+	file := input_params.File
+	uniqueName := input_params.UniqueName
+	extension := input_params.Extension
+
+	result, err := s.Bucket.Provider.Upload(ctx, file, uniqueName, extension)
 
 	if err != nil {
 		return "", err

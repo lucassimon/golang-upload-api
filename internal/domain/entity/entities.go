@@ -6,6 +6,8 @@ import (
 	"github.com/lucassimon/golang-upload-api/pkg/entity"
 )
 
+// sqlite>create table IF NOT EXISTS medias(id text primary key, name text, content_type text, link text, provider text, bucket_name text, directory text, size integer);
+
 type MidiaEntity struct {
 	Id          entity.ID `valid:"uuidv4" json:"id"`
 	Name        string    `valid:"required" json:"name"`

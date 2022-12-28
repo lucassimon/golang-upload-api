@@ -8,11 +8,10 @@ import (
 	"github.com/lucassimon/golang-upload-api/internal/adapters/buckets"
 	"github.com/lucassimon/golang-upload-api/internal/adapters/db"
 	"github.com/lucassimon/golang-upload-api/internal/domain/entity"
-	"github.com/lucassimon/golang-upload-api/internal/domain/services"
 )
 
 type UploadFilesUseCase struct {
-	Service *services.UploadService
+	Service *UploadService
 }
 
 func NewUploadFilesUseCase(ctx context.Context, mediaDB db.MediaDBRepositoryInterface) *UploadFilesUseCase {
@@ -22,7 +21,7 @@ func NewUploadFilesUseCase(ctx context.Context, mediaDB db.MediaDBRepositoryInte
 	bucket := buckets.MakeBucketStrategy(ctx, storage)
 	log.Println("bucket selected:", bucket.Name)
 
-	service := services.NewUploadService(bucket, mediaDB)
+	service := NewUploadService(bucket, mediaDB)
 	log.Println("created a UploadService")
 
 	return &UploadFilesUseCase{Service: service}
@@ -30,7 +29,7 @@ func NewUploadFilesUseCase(ctx context.Context, mediaDB db.MediaDBRepositoryInte
 
 func (uc *UploadFilesUseCase) Execute(ctx context.Context, input_params MediaInput) (*MediaOutput, error) {
 
-	mediaUploaded, err := uc.Service.Upload(ctx)
+	mediaUploaded, err := uc.Service.Upload(ctx, input_params)
 
 	if err != nil {
 		return nil, err

@@ -3,6 +3,7 @@ package buckets
 import (
 	"context"
 	"log"
+	"mime/multipart"
 
 	"github.com/lucassimon/golang-upload-api/internal/adapters/buckets/amazon"
 	"github.com/lucassimon/golang-upload-api/internal/adapters/buckets/cloudinary"
@@ -18,7 +19,7 @@ const (
 )
 
 type ProviderInterface interface {
-	Upload(context.Context) (string, error)
+	Upload(ctx context.Context, file *multipart.FileHeader, uniqueName string, extension string) (string, error)
 }
 
 type BucketFactory struct {

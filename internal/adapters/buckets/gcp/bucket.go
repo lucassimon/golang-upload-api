@@ -3,6 +3,7 @@ package gcp
 import (
 	"context"
 	"log"
+	"mime/multipart"
 	"os"
 
 	"cloud.google.com/go/storage"
@@ -140,7 +141,7 @@ func NewGCPBucket(ctx context.Context) *ProviderGCP {
 // 	return filtered
 // }
 
-func (b *ProviderGCP) Upload(ctx context.Context) (string, error) {
+func (b *ProviderGCP) Upload(ctx context.Context, file *multipart.FileHeader, uniqueName string, extension string) (string, error) {
 	log.Println("uploading the file in bucket GCP")
 	// writer := b.handler.Object(fmt.Sprintf("uploads/%s", midia.Name)).NewWriter(ctx)
 	// writer.ContentType = midia.ContentType
