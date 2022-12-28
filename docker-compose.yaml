@@ -15,14 +15,11 @@ services:
     volumes:
       - .:/app/
       - go_packages:/go
-  server:
+  http:
     <<: *defaults
-    command: go run main.go server
+    command: go run main.go http
     ports:
       - 8080:8080
-  client:
-    <<: *defaults
-    command: go run main.go client
   ci:
     <<: *defaults
     build:
@@ -36,7 +33,7 @@ services:
     platform: linux/amd64
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: desafio
+      MYSQL_DATABASE: medias
       MYSQL_PASSWORD: root
     ports:
       - 3306:3306
