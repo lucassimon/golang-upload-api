@@ -1,0 +1,33 @@
+@startuml contexto
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+AddRelTag("async", $lineStyle = DashedLine())
+SHOW_PERSON_PORTRAIT()
+
+title "Media center: <golang-upload-api>"
+Person(administrador,"Administrador", "Gerencia as medias cadastradas")
+
+
+
+System_Boundary(gateway, "Media Center") {
+    Container(frontend_catalogo_admin,"Frontend: Admin das medias","React","SPA que gerencia os medias")
+    Container(backend_catalogo_admin,"Backend: Medias Center","golang","Gerencia as medias e o upload em buckets diferentes.")
+    Container(backend_catalogo_admin_database,"Database Admin do Media center","sqlite3","Armazena dados do media center")
+    Container(bucket_gcp,"GCP Storage")
+    Container(bucket_aws,"AWS S3")
+    Container(bucket_do,"Digital Ocean Spaces")
+    Container(bucket_cloudinary,"Cloudinary")
+    Container(bucket_local,"Local")
+
+    Rel(frontend_catalogo_admin,backend_catalogo_admin,"Interage com via","HTTPS/JSON")
+    Rel(backend_catalogo_admin,backend_catalogo_admin_database,"Interage com usando","TCP")
+    Rel(backend_catalogo_admin,bucket_gcp,"Ou faz upload da media", "HTTPS")
+    Rel(backend_catalogo_admin,bucket_aws,"Ou faz upload da media","HTTPS")
+    Rel(backend_catalogo_admin,bucket_do,"Ou faz upload da media","HTTPS")
+    Rel(backend_catalogo_admin,bucket_cloudinary,"Ou faz upload da media via","HTTPS")
+    Rel(backend_catalogo_admin,bucket_local,"Ou faz upload da media via","HTTPS")
+
+
+    Rel(administrador,frontend_catalogo_admin,"Interage com via","HTTPS")
+
+}
+@enduml

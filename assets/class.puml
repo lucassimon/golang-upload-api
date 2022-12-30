@@ -1,0 +1,92 @@
+@startuml classes
+
+class BucketFactory {
+    Name       string
+	BucketName string
+	Path       string
+    Provider   ProviderInterface
+    MakeBucketStrategy()
+}
+
+class MediaEntity {
+    Id          uuid
+    Name        string
+    ContentType string
+    Link        string
+    Provider    string
+    BucketName  string
+    Directory   string
+    Size        int64
+    MakeMediaEntity()
+    Print()
+    GetID()
+    GetName()
+    GetContentType()
+    GetLink()
+    GetBucketName()
+    GetProvider()
+    GetDirectory()
+    GetSize()
+}
+
+class UploadFilesUseCase {
+    Service UploadService
+    NewUploadFilesUseCase()
+    Execute()
+}
+
+class UploadService {
+    Bucket     *buckets.BucketFactory
+	Repository db.MediaDBRepositoryInterface
+    Upload()
+    Save()
+}
+
+class MediaDB {
+    db *sql.DB
+    Create(...)
+    FindAll(...)
+    FindByID(...)
+    Delete(...)
+}
+
+interface MediaDBRepositoryInterface {
+    Create(media *entity.MidiaEntity) error
+	FindAll(page, limit int, sort string) ([]entity.MidiaEntity, error)
+	FindByID(id string) (*entity.MidiaEntity, error)
+	Delete(id string) error
+}
+
+interface ProviderInterface {
+    upload(ctx, file, uniqueName, extension) (string, error)
+}
+
+class ProviderGCP {
+    upload(...)
+}
+
+class ProviderAWS {
+    upload(...)
+}
+
+class ProviderDO {
+    upload(...)
+}
+
+class ProviderCloudinary {
+    upload(...)
+}
+
+class ProviderLocal {
+    upload(...)
+}
+
+ProviderInterface <|-- ProviderGCP
+ProviderInterface <|-- ProviderAWS
+ProviderInterface <|-- ProviderDO
+ProviderInterface <|-- ProviderCloudinary
+ProviderInterface <|-- ProviderLocal
+
+MediaDBRepositoryInterface <|-- MediaDB
+
+@enduml
