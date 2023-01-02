@@ -10,9 +10,9 @@ import (
 )
 
 type MediaDBRepositoryInterface interface {
-	Create(media *entity.MidiaEntity) error
-	FindAll(page, limit int, sort string) ([]entity.MidiaEntity, error)
-	FindByID(id string) (*entity.MidiaEntity, error)
+	Create(media *entity.MediaEntity) error
+	FindAll(page, limit int, sort string) ([]entity.MediaEntity, error)
+	FindByID(id string) (*entity.MediaEntity, error)
 	Delete(id string) error
 }
 
@@ -24,7 +24,7 @@ func NewMediaDB(db *sql.DB) *MediaDB {
 	return &MediaDB{db: db}
 }
 
-func (m *MediaDB) Create(media *entity.MidiaEntity) error {
+func (m *MediaDB) Create(media *entity.MediaEntity) error {
 	log.Println("call create from db adapter")
 
 	stmt, err := m.db.Prepare(`INSERT INTO medias(id, name, content_type, link, provider, bucket_name, directory, size) VALUES(?,?,?,?,?,?,?,?)`)
@@ -52,8 +52,8 @@ func (m *MediaDB) Create(media *entity.MidiaEntity) error {
 	return nil
 }
 
-func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MidiaEntity, error) {
-	var medias []entity.MidiaEntity
+func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MediaEntity, error) {
+	var medias []entity.MediaEntity
 	var err error
 
 	if page <= 0 {
@@ -77,7 +77,7 @@ func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MidiaEntity, e
 	defer rows.Close()
 
 	for rows.Next() {
-		var media entity.MidiaEntity
+		var media entity.MediaEntity
 		err = rows.Scan(&media.Id, &media.Name, &media.ContentType, &media.Link, &media.Provider, &media.BucketName, &media.Directory, &media.Size)
 		if err != nil {
 			return nil, err
@@ -87,8 +87,8 @@ func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MidiaEntity, e
 	return medias, err
 }
 
-func (m *MediaDB) FindByID(id string) (*entity.MidiaEntity, error) {
-	var media entity.MidiaEntity
+func (m *MediaDB) FindByID(id string) (*entity.MediaEntity, error) {
+	var media entity.MediaEntity
 	stmt, err := m.db.Prepare("SELECT id, name, content_type, link, provider, bucket_name, directory, size from medias where id = ?")
 	if err != nil {
 		return nil, err

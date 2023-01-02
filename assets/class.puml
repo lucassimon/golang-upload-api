@@ -8,6 +8,18 @@ class BucketFactory {
     MakeBucketStrategy()
 }
 
+class MediaInput {
+	File        *multipart.FileHeader
+	Filename    string
+	UniqueName  string
+	Extension   string
+	ContentType string
+	Size        int64
+    Title       string
+    Description string
+    Alt         string
+}
+
 class MediaEntity {
     Id          uuid
     Name        string
@@ -17,6 +29,9 @@ class MediaEntity {
     BucketName  string
     Directory   string
     Size        int64
+    Title       string
+    Description string
+    Alt         string
     MakeMediaEntity()
     Print()
     GetID()
@@ -28,6 +43,14 @@ class MediaEntity {
     GetDirectory()
     GetSize()
 }
+
+class MediaOutput {
+	Link        string
+    Title       string
+    Description string
+    Alt         string
+}
+
 
 class UploadFilesUseCase {
     Service UploadService
@@ -51,9 +74,9 @@ class MediaDB {
 }
 
 interface MediaDBRepositoryInterface {
-    Create(media *entity.MidiaEntity) error
-	FindAll(page, limit int, sort string) ([]entity.MidiaEntity, error)
-	FindByID(id string) (*entity.MidiaEntity, error)
+    Create(media *entity.MediaEntity) error
+	FindAll(page, limit int, sort string) ([]entity.MediaEntity, error)
+	FindByID(id string) (*entity.MediaEntity, error)
 	Delete(id string) error
 }
 

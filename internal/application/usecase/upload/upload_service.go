@@ -34,7 +34,7 @@ func (s *UploadService) Upload(ctx context.Context, input_params MediaInput) (st
 	return result, nil
 }
 
-func (s *UploadService) Save(ctx context.Context, media *entity.MidiaEntity) error {
+func (s *UploadService) Save(ctx context.Context, media *entity.MediaEntity) error {
 	log.Println("call save service")
 	err := s.Repository.Create(media)
 

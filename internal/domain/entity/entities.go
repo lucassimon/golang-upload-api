@@ -8,7 +8,7 @@ import (
 
 // sqlite>create table IF NOT EXISTS medias(id text primary key, name text, content_type text, link text, provider text, bucket_name text, directory text, size integer);
 
-type MidiaEntity struct {
+type MediaEntity struct {
 	Id          entity.ID `valid:"uuidv4" json:"id"`
 	Name        string    `valid:"required" json:"name"`
 	ContentType string    `valid:"required" json:"content_type"`
@@ -27,8 +27,8 @@ func MakeMediaEntity(
 	bucketName,
 	directory string,
 	size int64,
-) *MidiaEntity {
-	return &MidiaEntity{
+) *MediaEntity {
+	return &MediaEntity{
 		Id:          entity.NewID(),
 		Name:        name,
 		ContentType: contenttype,
@@ -40,38 +40,38 @@ func MakeMediaEntity(
 	}
 }
 
-func (m *MidiaEntity) Print() string {
+func (m *MediaEntity) Print() string {
 	return fmt.Sprintf("{Id:%d, Title:%s, Name:%s}", m.Id, m.Name, m.ContentType)
 }
 
-func (m *MidiaEntity) GetID() string {
+func (m *MediaEntity) GetID() string {
 	return m.Id.String()
 }
 
-func (m *MidiaEntity) GetName() string {
+func (m *MediaEntity) GetName() string {
 	return m.Name
 }
 
-func (m *MidiaEntity) GetContentType() string {
+func (m *MediaEntity) GetContentType() string {
 	return m.ContentType
 }
 
-func (m *MidiaEntity) GetLink() string {
+func (m *MediaEntity) GetLink() string {
 	return m.Link
 }
 
-func (m *MidiaEntity) GetBucketName() string {
+func (m *MediaEntity) GetBucketName() string {
 	return m.BucketName
 }
 
-func (m *MidiaEntity) GetProvider() string {
+func (m *MediaEntity) GetProvider() string {
 	return m.Provider
 }
 
-func (m *MidiaEntity) GetDirectory() string {
+func (m *MediaEntity) GetDirectory() string {
 	return m.Directory
 }
 
-func (m *MidiaEntity) GetSize() int64 {
+func (m *MediaEntity) GetSize() int64 {
 	return m.Size
 }
