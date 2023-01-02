@@ -9,8 +9,8 @@ import (
 type ProviderAmazon struct {
 }
 
-func NewAmazonBucket(ctx context.Context) *ProviderAmazon {
-	return &ProviderAmazon{}
+func NewAmazonBucket(ctx context.Context) (*ProviderAmazon, error) {
+	return &ProviderAmazon{}, nil
 }
 
 func (b *ProviderAmazon) Upload(ctx context.Context, file *multipart.FileHeader, uniqueName string, extension string) (string, error) {

@@ -9,8 +9,8 @@ import (
 type ProviderCloudinary struct {
 }
 
-func NewCloudinaryBucket(ctx context.Context) *ProviderCloudinary {
-	return &ProviderCloudinary{}
+func NewCloudinaryBucket(ctx context.Context) (*ProviderCloudinary, error) {
+	return &ProviderCloudinary{}, nil
 }
 
 func (b *ProviderCloudinary) Upload(ctx context.Context, file *multipart.FileHeader, uniqueName string, extension string) (string, error) {

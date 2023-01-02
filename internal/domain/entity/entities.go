@@ -17,6 +17,9 @@ type MediaEntity struct {
 	BucketName  string    `valid:"required" json:"bucket_name"`
 	Directory   string    `valid:"required" json:"directory"`
 	Size        int64     `valid:"required" json:"size"`
+	Title       string    `valid:"required" json:"title"`
+	Description string    `valid:"required" json:"description"`
+	Alt         string    `valid:"required" json:"alt"`
 }
 
 func MakeMediaEntity(
@@ -27,6 +30,7 @@ func MakeMediaEntity(
 	bucketName,
 	directory string,
 	size int64,
+	title, description, alt string,
 ) *MediaEntity {
 	return &MediaEntity{
 		Id:          entity.NewID(),
@@ -37,11 +41,14 @@ func MakeMediaEntity(
 		Provider:    provider,
 		BucketName:  bucketName,
 		Directory:   directory,
+		Title:       title,
+		Description: description,
+		Alt:         alt,
 	}
 }
 
 func (m *MediaEntity) Print() string {
-	return fmt.Sprintf("{Id:%d, Title:%s, Name:%s}", m.Id, m.Name, m.ContentType)
+	return fmt.Sprintf("{Id:%s, Title:%s, Link:%s}", m.Id, m.Title, m.Link)
 }
 
 func (m *MediaEntity) GetID() string {
@@ -74,4 +81,16 @@ func (m *MediaEntity) GetDirectory() string {
 
 func (m *MediaEntity) GetSize() int64 {
 	return m.Size
+}
+
+func (m *MediaEntity) GetTitle() string {
+	return m.Title
+}
+
+func (m *MediaEntity) GetDescription() string {
+	return m.Description
+}
+
+func (m *MediaEntity) GetAlt() string {
+	return m.Alt
 }

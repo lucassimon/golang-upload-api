@@ -2,6 +2,8 @@ package gcp
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"log"
 	"mime/multipart"
 	"os"
@@ -13,14 +15,13 @@ type ProviderGCP struct {
 	handler *storage.BucketHandle
 }
 
-func NewGCPBucket(ctx context.Context) *ProviderGCP {
+func NewGCPBucket(ctx context.Context) (*ProviderGCP, error) {
 	cli, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return &ProviderGCP{
-		handler: cli.Bucket(GetBucketName())}
+	return &ProviderGCP{handler: cli.Bucket(GetBucketName())}, nil
 }
 
 // func (b *ProviderGCP) setReadOnlyAccessPublic(ctx context.Context, objectName string) {
@@ -141,27 +142,34 @@ func NewGCPBucket(ctx context.Context) *ProviderGCP {
 // 	return filtered
 // }
 
-func (b *ProviderGCP) Upload(ctx context.Context, file *multipart.FileHeader, uniqueName string, extension string) (string, error) {
+func (b *ProviderGCP) Upload(ctx context.Context, fh *multipart.FileHeader, uniqueName string, extension string) (string, error) {
 	log.Println("uploading the file in bucket GCP")
-	// writer := b.handler.Object(fmt.Sprintf("uploads/%s", midia.Name)).NewWriter(ctx)
-	// writer.ContentType = midia.ContentType
-	// writer.CacheControl = "public, max-age=86400"
-	// writer.ACL = []storage.ACLRule{{Entity: storage.AllUsers, Role: storage.RoleReader}}
+	file, err := fh.Open()
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
 
-	// if _, err := io.Copy(writer, midia.File); err != nil {
-	// 	return "#", err
-	// }
-	// if err := writer.Close(); err != nil {
-	// 	return "#", err
-	// }
+	writer := b.handler.Object(fmt.Sprintf("uploads/%s", uniqueName)).NewWriter(ctx)
+	writer.ContentType = fh.Header.Get("Content-Type")
+	writer.CacheControl = "public, max-age=86400"
+	writer.ACL = []storage.ACLRule{{Entity: storage.AllUsers, Role: storage.RoleReader}}
+
+	if _, err := io.Copy(writer, file); err != nil {
+		return "#", err
+	}
+	if err := writer.Close(); err != nil {
+		return "#", err
+	}
 
 	const publicLink = "https://storage.googleapis.com/%s/uploads/%s"
-	return publicLink, nil
+
+	return fmt.Sprintf(publicLink, GetBucketName(), uniqueName), nil
 }
 
-func getCredentials() string {
-	return os.Getenv("GOOGLE_CREDENTIALS")
-}
+// func getCredentials() string {
+// 	return os.Getenv("GOOGLE_CREDENTIALS")
+// }
 
 func GetBucketName() string {
 	return os.Getenv("GOOGLE_BUCKET_NAME")

@@ -10,9 +10,15 @@ compress:
 build: compile compress
 
 .PHONY: test
-test:
+test: clean
 	@echo "running tests"
-	go test -v ./...
+	go test -v ./... -coverprofile=coverage.out
+
+
+coverage:
+	@echo "run go tool coverage"
+	go tool cover -html=coverage.out
+
 
 .PHONY: clean
 clean:

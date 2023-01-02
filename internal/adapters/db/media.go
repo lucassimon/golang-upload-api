@@ -10,7 +10,7 @@ import (
 )
 
 type MediaDBRepositoryInterface interface {
-	Create(media *entity.MediaEntity) error
+	Create(media *entity.MediaEntity) (*entity.MediaEntity, error)
 	FindAll(page, limit int, sort string) ([]entity.MediaEntity, error)
 	FindByID(id string) (*entity.MediaEntity, error)
 	Delete(id string) error
@@ -24,12 +24,12 @@ func NewMediaDB(db *sql.DB) *MediaDB {
 	return &MediaDB{db: db}
 }
 
-func (m *MediaDB) Create(media *entity.MediaEntity) error {
+func (m *MediaDB) Create(media *entity.MediaEntity) (*entity.MediaEntity, error) {
 	log.Println("call create from db adapter")
 
-	stmt, err := m.db.Prepare(`INSERT INTO medias(id, name, content_type, link, provider, bucket_name, directory, size) VALUES(?,?,?,?,?,?,?,?)`)
+	stmt, err := m.db.Prepare(`INSERT INTO medias(id, name, content_type, link, provider, bucket_name, directory, size, title, description, alt) VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	_, err = stmt.Exec(
 		media.GetID(),
@@ -40,16 +40,19 @@ func (m *MediaDB) Create(media *entity.MediaEntity) error {
 		media.GetBucketName(),
 		media.GetDirectory(),
 		media.GetSize(),
+		media.GetTitle(),
+		media.GetDescription(),
+		media.GetAlt(),
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = stmt.Close()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return media, nil
 }
 
 func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MediaEntity, error) {
@@ -78,7 +81,7 @@ func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MediaEntity, e
 
 	for rows.Next() {
 		var media entity.MediaEntity
-		err = rows.Scan(&media.Id, &media.Name, &media.ContentType, &media.Link, &media.Provider, &media.BucketName, &media.Directory, &media.Size)
+		err = rows.Scan(&media.Id, &media.Name, &media.ContentType, &media.Link, &media.Provider, &media.BucketName, &media.Directory, &media.Size, &media.Title, &media.Description, &media.Alt)
 		if err != nil {
 			return nil, err
 		}
@@ -89,12 +92,12 @@ func (m *MediaDB) FindAll(page, limit int, sort string) ([]entity.MediaEntity, e
 
 func (m *MediaDB) FindByID(id string) (*entity.MediaEntity, error) {
 	var media entity.MediaEntity
-	stmt, err := m.db.Prepare("SELECT id, name, content_type, link, provider, bucket_name, directory, size from medias where id = ?")
+	stmt, err := m.db.Prepare("SELECT * from medias where id = ?")
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
-	err = stmt.QueryRow(id).Scan(&media.Id, &media.Name, &media.ContentType, &media.Link, &media.Provider, &media.BucketName, &media.Directory, &media.Size)
+	err = stmt.QueryRow(id).Scan(&media.Id, &media.Name, &media.ContentType, &media.Link, &media.Provider, &media.BucketName, &media.Directory, &media.Size, &media.Title, &media.Description, &media.Alt)
 	if err != nil {
 		return nil, err
 	}

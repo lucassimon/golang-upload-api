@@ -40,8 +40,8 @@ func (pr *Progress) Print() {
 type ProviderLocal struct {
 }
 
-func NewLocalBucket(ctx context.Context) *ProviderLocal {
-	return &ProviderLocal{}
+func NewLocalBucket(ctx context.Context) (*ProviderLocal, error) {
+	return &ProviderLocal{}, nil
 }
 
 func (b *ProviderLocal) Upload(ctx context.Context, fh *multipart.FileHeader, uniqueName string, extension string) (string, error) {

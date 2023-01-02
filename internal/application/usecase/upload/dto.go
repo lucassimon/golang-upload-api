@@ -8,13 +8,15 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/lucassimon/golang-upload-api/pkg/entity"
 )
 
 type MediaOutput struct {
-	Name        string
-	ContentType string
+	Id          entity.ID
+	Title       string
+	Description string
+	Alt         string
 	Link        string
-	Size        int64
 }
 
 type MediaInput struct {
@@ -23,28 +25,34 @@ type MediaInput struct {
 	UniqueName  string
 	Extension   string
 	ContentType string
+	Title       string
+	Description string
+	Alt         string
 	Size        int64
 }
 
-func MakeMediaInput(file *multipart.FileHeader) MediaInput {
+func MakeMediaInput(file *multipart.FileHeader, title, description, alt []string) MediaInput {
 
 	return MediaInput{
 		File:        file,
 		Filename:    file.Filename,
-		UniqueName:  generateUniqueName(file),
-		Extension:   getExtension(file),
+		UniqueName:  GenerateUniqueName(file),
+		Extension:   GetExtension(file),
 		ContentType: file.Header.Get("Content-Type"),
 		Size:        file.Size,
+		Title:       strings.Join(title, ""),
+		Description: strings.Join(description, ""),
+		Alt:         strings.Join(alt, ""),
 	}
 }
 
-func generateUniqueName(fh *multipart.FileHeader) string {
+func GenerateUniqueName(fh *multipart.FileHeader) string {
 	log.Printf("headers: %+v\n", fh.Header)
 	originalFileName := strings.TrimSuffix(filepath.Base(fh.Filename), filepath.Ext(fh.Filename))
 	filename := strings.ReplaceAll(strings.ToLower(originalFileName), " ", "-")
 	return fmt.Sprintf("%s-%s%s", uuid.New().String(), filename, filepath.Ext(fh.Filename))
 }
 
-func getExtension(fh *multipart.FileHeader) string {
+func GetExtension(fh *multipart.FileHeader) string {
 	return filepath.Ext(fh.Filename)
 }

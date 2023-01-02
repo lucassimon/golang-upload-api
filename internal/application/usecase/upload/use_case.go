@@ -14,17 +14,20 @@ type UploadFilesUseCase struct {
 	Service *UploadService
 }
 
-func NewUploadFilesUseCase(ctx context.Context, mediaDB db.MediaDBRepositoryInterface) *UploadFilesUseCase {
+func NewUploadFilesUseCase(ctx context.Context, mediaDB db.MediaDBRepositoryInterface) (*UploadFilesUseCase, error) {
 	storage := os.Getenv("STORAGE_SELECTED")
 	log.Println("storage selected:", storage)
 
-	bucket := buckets.MakeBucketStrategy(ctx, storage)
+	bucket, err := buckets.MakeBucketStrategy(ctx, storage)
+	if err != nil {
+		return nil, err
+	}
 	log.Println("bucket selected:", bucket.Name)
 
 	service := NewUploadService(bucket, mediaDB)
 	log.Println("created a UploadService")
 
-	return &UploadFilesUseCase{Service: service}
+	return &UploadFilesUseCase{Service: service}, nil
 }
 
 func (uc *UploadFilesUseCase) Execute(ctx context.Context, input_params MediaInput) (*MediaOutput, error) {
@@ -43,6 +46,9 @@ func (uc *UploadFilesUseCase) Execute(ctx context.Context, input_params MediaInp
 		uc.Service.Bucket.BucketName,
 		uc.Service.Bucket.Path,
 		input_params.Size,
+		input_params.Title,
+		input_params.Description,
+		input_params.Alt,
 	)
 	log.Printf("created entity %+v\n", media)
 
@@ -55,6 +61,12 @@ func (uc *UploadFilesUseCase) Execute(ctx context.Context, input_params MediaInp
 
 	log.Println("return media output or error")
 
-	media_output := &MediaOutput{}
+	media_output := &MediaOutput{
+		Id:          media.Id,
+		Title:       media.Title,
+		Description: media.Description,
+		Alt:         media.Alt,
+		Link:        media.Link,
+	}
 	return media_output, nil
 }

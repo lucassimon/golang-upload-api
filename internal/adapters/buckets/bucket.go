@@ -29,59 +29,76 @@ type BucketFactory struct {
 	Provider   ProviderInterface
 }
 
-func MakeBucketStrategy(ctx context.Context, provider string) *BucketFactory {
+func MakeBucketStrategy(ctx context.Context, provider string) (*BucketFactory, error) {
 
 	switch provider {
 	case "amazon":
-		provider := amazon.NewAmazonBucket(ctx)
+		provider, err := amazon.NewAmazonBucket(ctx)
+		if err != nil {
+			return nil, err
+		}
 		bucket := &BucketFactory{
 			Name:       "amazon",
 			BucketName: "some-bucket-name/",
-			Path:       "uploads/",
+			Path:       UPLOADS_PREFIX,
 			Provider:   provider,
 		}
 		log.Println("Strategy Amazon S3 Bucket")
-		return bucket
+		return bucket, nil
 	case "do":
-		provider := do.NewDigitalOceanBucket(ctx)
+		provider, err := do.NewDigitalOceanBucket(ctx)
+
+		if err != nil {
+			return nil, err
+		}
+
 		bucket := &BucketFactory{
 			Name:       "digitalOcean",
 			BucketName: "megustaviajar",
-			Path:       "uploads/",
+			Path:       UPLOADS_PREFIX,
 			Provider:   provider,
 		}
 		log.Println("Strategy Digital Ocean Spaces")
-		return bucket
+		return bucket, nil
 	case "cloudinary":
-		provider := cloudinary.NewCloudinaryBucket(ctx)
+		provider, err := cloudinary.NewCloudinaryBucket(ctx)
+		if err != nil {
+			return nil, err
+		}
 		bucket := &BucketFactory{
 			Name:       "cloudinary",
 			BucketName: "some-bucket-name/",
-			Path:       "uploads/",
+			Path:       UPLOADS_PREFIX,
 			Provider:   provider,
 		}
 		log.Println("Strategy Google cloud computing")
-		return bucket
+		return bucket, nil
 	case "gcp":
-		provider := gcp.NewGCPBucket(ctx)
+		provider, err := gcp.NewGCPBucket(ctx)
+		if err != nil {
+			return nil, err
+		}
 		bucket := &BucketFactory{
 			Name:       "google",
 			BucketName: gcp.GetBucketName(),
-			Path:       "uploads/",
+			Path:       UPLOADS_PREFIX,
 			Provider:   provider,
 		}
 		log.Println("Strategy Google cloud computing")
-		return bucket
+		return bucket, nil
 
 	default:
-		provider := local.NewLocalBucket(ctx)
+		provider, err := local.NewLocalBucket(ctx)
+		if err != nil {
+			return nil, err
+		}
 		bucket := &BucketFactory{
 			Name:       "local",
 			BucketName: "medias/",
-			Path:       "uploads/",
+			Path:       UPLOADS_PREFIX,
 			Provider:   provider,
 		}
 		log.Println("Strategy Local storage")
-		return bucket
+		return bucket, nil
 	}
 }
