@@ -1,0 +1,73 @@
+@startuml sequencia
+skinparam sequenceMessageAlign right
+
+
+actor Client
+participant WebServer
+participant UploadHandler
+participant UseCase
+participant BucketStrategy
+participant Service
+participant Provider
+participant DBRepo
+entity MediaEntity
+entity MediaEntityOutput
+database StorageCloud
+database DB
+queue Queue
+
+
+
+WebServer -> DB: Realiza conexão com o banco
+DB --> WebServer: Retorna conexão com o banco
+|||
+
+WebServer -> DBRepo: Cria adaptador com a conexao do banco
+DBRepo --> WebServer: Retorna a instancia do repository
+WebServer -> UploadHandler: Cria o hancler com a conexão do banco através do repository
+UploadHandler --> WebServer: Anexa o upload handler a rota /upload
+WebServer -> WebServer: Inicia o servidor  web
+|||
+
+Client -> UploadHandler: POST /uploads
+|||
+UploadHandler -> DBRepo:
+|||
+UploadHandler -> UseCase: Fabrica uma instancia do caso de uso
+|||
+
+
+UseCase -> BucketStrategy: Seleciona o provedor por env var
+BucketStrategy -> Provider: Instancia o provedor
+Provider --> BucketStrategy: Retorna o provedor
+BucketStrategy --> UseCase: Retorna instancia do Bucket
+|||
+UseCase -> Service: Cria uma instancia com os dados do bucket, provider, e repository
+Service --> UseCase: Retorna a instancia
+UseCase --> UploadHandler: Retorna a instancia do caso de uso
+|||
+
+loop file in files
+    UseCase -> UseCase: Chama o metodo execute passando o arquivo
+    UseCase -> Service: Chama o metodo de upload do service
+    Service -> Service: Retorna o arquivo, nome do arquivo e extensao
+    Service -> Provider: Chama o metodo upload repassando os parametros
+    Provider -> StorageCloud: realiza o upload do binario no Storage
+    StorageCloud --> Provider: Retorna caminho completo do arquivo criado
+    Provider --> Service: Retorna caminho completo do arquivo criado
+    Service --> UseCase:  Retorna caminho completo do arquivo criado
+    UseCase -> MediaEntity: Cria-se uma entidade com os dados do arquivo
+    MediaEntity --> UseCase: Entidade criada
+    UseCase -> Service: Chama o metodo save()
+    Service -> DBRepo: Chama o metodo create() passando a entidade
+    DBRepo -> DB: Salva o item no banco de dados
+    DB --> DBRepo: Retorna o item salvo
+    DBRepo --> Service: Retorna vazio ou erro
+    Service --> UseCase: Retorna vazio ou erro
+    UseCase -> MediaEntityOutput: Cria os dados da entidade de saida
+    MediaEntityOutput --> UseCase: Retorna entidade criada
+end
+|||
+UseCase --> UploadHandler: Retorna a entidade criada
+UploadHandler --> Client: Retorna um JSON com a entidade criada e status 201
+@enduml

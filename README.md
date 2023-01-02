@@ -8,6 +8,10 @@ This service aims to upload medias (images, documents, videos and audios...) to 
 
 ![](./assets/classes.png)
 
+## Sequence diagram
+
+![](./assets/sequencia.png)
+
 # Development
 
 Locally, I recommend `ubuntu` or `debian` linux:
