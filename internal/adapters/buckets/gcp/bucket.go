@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"cloud.google.com/go/storage"
+	"google.golang.org/api/option"
 )
 
 type ProviderGCP struct {
@@ -16,7 +17,15 @@ type ProviderGCP struct {
 }
 
 func NewGCPBucket(ctx context.Context) (*ProviderGCP, error) {
-	cli, err := storage.NewClient(ctx)
+	// Option 1: Read credentials as pure json file
+	// Option 2: Encode the JSON file as env var
+	// cat /home/me/gcp-creds.json | base64
+	// export GCP_CREDS_JSON_BASE64="paste_base64_output_here"
+	// d, _ := base64.StdEncoding.DecodeString(os.GetEnv(GCP_CREDS_JSON_BASE64))
+	// Option 3: Use cryptography
+	// Another alternative is to use a cryptographic library to encrypt the file and
+	// pass the key as the environment variable to decrypt it during setup
+	cli, err := storage.NewClient(ctx, option.WithCredentialsFile(getCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +162,7 @@ func (b *ProviderGCP) Upload(ctx context.Context, fh *multipart.FileHeader, uniq
 	writer := b.handler.Object(fmt.Sprintf("uploads/%s", uniqueName)).NewWriter(ctx)
 	writer.ContentType = fh.Header.Get("Content-Type")
 	writer.CacheControl = "public, max-age=86400"
-	writer.ACL = []storage.ACLRule{{Entity: storage.AllUsers, Role: storage.RoleReader}}
+	// writer.Metadata = map[string]string{"api": "golang-upload-api"}
 
 	if _, err := io.Copy(writer, file); err != nil {
 		return "#", err
@@ -167,9 +176,9 @@ func (b *ProviderGCP) Upload(ctx context.Context, fh *multipart.FileHeader, uniq
 	return fmt.Sprintf(publicLink, GetBucketName(), uniqueName), nil
 }
 
-// func getCredentials() string {
-// 	return os.Getenv("GOOGLE_CREDENTIALS")
-// }
+func getCredentials() string {
+	return os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+}
 
 func GetBucketName() string {
 	return os.Getenv("GOOGLE_BUCKET_NAME")
