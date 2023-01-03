@@ -12,6 +12,52 @@ This service aims to upload medias (images, documents, videos and audios...) to 
 
 ![](./assets/sequencia.png)
 
+## How to configure providers
+
+A short description to confgure storage providers
+
+### Digital Ocean
+
+[Create Token](https://cloud.digitalocean.com/account/api/tokens)
+
+![](./assets/digital_ocean_create_token.png)
+
+Then [create a space](https://cloud.digitalocean.com/spaces)
+
+![](./assets/digital_ocean_create_space.png)
+
+After that fill the env vars
+
+```ini
+DO_SPACE_ENDPOINT=BUCKET_ENDPOINT
+; check your region in the endpoint url
+DO_SPACE_REGION='sfo2'
+DO_SPACE_NAME=DO_SPACE_NAME
+DO_ACCESS_KEY=YOUR_SPACE_ACCESS_KEY
+DO_SECRET_KEY=YOUR_SPACE_SECRET_KEY
+```
+
+### GCP
+
+[Create service account](https://console.cloud.google.com/iam-admin/serviceaccounts) with role `cloud storage: admin objects`
+
+![](./assets/google_create_serviceaccount.png)
+
+Then generate the credential and save it on your computer
+
+![](./assets/google_create_serviceaccount_credential.png)
+
+Create a bucket with public access and add `allUsers` permissions for get objects
+
+![](./assets/google_create_bucket.png)
+
+After that fill the env vars
+
+```ini
+GOOGLE_APPLICATION_CREDENTIALS=YOUR_CREDENTIALS_PATH
+GOOGLE_BUCKET_NAME=YOUR_BUCKET_NAME
+```
+
 # Development
 
 Locally, I recommend `ubuntu` or `debian` linux:
